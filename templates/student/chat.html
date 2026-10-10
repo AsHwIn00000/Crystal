@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Chat — Crystal AI{% endblock %}
+{% block body_class %}chat-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+
+  {% include 'partials/sidebar.html' %}
+
+  <div class="chat-workspace">
+
+    <!-- Topbar -->
+    <div class="chat-topbar">
+      <div class="topbar-left">
+        <button id="sidebar-toggle" class="hamburger-btn" aria-label="Toggle sidebar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <h1 class="topbar-title" id="chat-title">Crystal AI</h1>
+      </div>
+      <div class="topbar-right">
+        <span class="model-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Groq · Qwen 3
+        </span>
+      </div>
+    </div>
+
+    <!-- Messages viewport -->
+    <div class="messages-viewport" id="messages-area" role="log" aria-live="polite" aria-label="Chat messages">
+
+      <!-- Welcome screen -->
+      <div id="welcome-screen" class="welcome-screen">
+        <div class="welcome-orb">
+          <div class="orb-inner">C</div>
+        </div>
+        <h1 class="welcome-title">What can I help with?</h1>
+        <p class="welcome-sub">Ask about your college — fees, schedules, policies — or upload documents and I'll answer from them directly.</p>
+        <div class="suggestion-grid">
+          <button class="suggestion-card" data-prompt="What are the exam schedules?">
+            <span class="suggestion-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+            <span>What are the exam schedules?</span>
+          </button>
+          <button class="suggestion-card" data-prompt="How do I apply for financial aid?">
+            <span class="suggestion-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </span>
+            <span>How do I apply for financial aid?</span>
+          </button>
+          <button class="suggestion-card" data-prompt="What is the attendance policy?">
+            <span class="suggestion-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            <span>What is the attendance policy?</span>
+          </button>
+          <button class="suggestion-card" data-prompt="What are the fee payment deadlines?">
+            <span class="suggestion-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
+            <span>What are the fee payment deadlines?</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages list (populated by chat.js) -->
+      <div id="messages-list"></div>
+
+      <!-- Typing indicator -->
+      <div class="typing-row" id="typing-indicator" style="display:none;" aria-label="Crystal is thinking">
+        <div class="ai-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <text x="4" y="17" font-size="14" font-weight="700" fill="currentColor" stroke="none">C</text>
+          </svg>
+        </div>
+        <div class="typing-bubble">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+
+    </div><!-- /messages-viewport -->
+
+    <!-- Composer area -->
+    <div class="composer-area">
+      <div class="composer-box" id="chat-input-box">
+        <textarea
+          id="msg-input"
+          class="composer-input"
+          placeholder="Ask Crystal anything…"
+          rows="1"
+          maxlength="4000"
+          aria-label="Type your message"
+          disabled
+        ></textarea>
+        <div class="composer-actions">
+          <button class="attach-btn" id="attach-btn" aria-label="Attach file" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+            </svg>
+          </button>
+          <button class="send-btn" id="send-btn" aria-label="Send message" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div id="attachment-preview" class="attachment-preview" style="display:none;"></div>
+      </div>
+      <p class="composer-hint">Crystal may make mistakes. Verify important information.</p>
+    </div>
+
+  </div><!-- /chat-workspace -->
+
+</div><!-- /app-shell -->
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}

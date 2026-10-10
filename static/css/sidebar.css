@@ -1,0 +1,331 @@
+/* ─── Sidebar — Nebula Dark Glass Theme ─────────────────────────────── */
+
+/* Screen-reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+/* ── Base sidebar ─────────────────────────────────────────────────────── */
+.sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-sidebar, #13131F);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transition: width 0.25s ease, transform 0.25s ease;
+  overflow: hidden;
+}
+
+/* ── Brand ────────────────────────────────────────────────────────────── */
+.sidebar-brand {
+  padding: 1.25rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  width: 32px; height: 32px;
+  background: var(--violet, #7C3AED);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary, #E5E7EF);
+  white-space: nowrap;
+}
+
+/* ── New Chat button ──────────────────────────────────────────────────── */
+.new-chat-btn {
+  margin: 0 0.75rem 0.75rem;
+  padding: 0.55rem 1rem;
+  background: var(--violet, #7C3AED);
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.new-chat-btn:hover {
+  background: var(--violet-hover, #6D28D9);
+  box-shadow: 0 0 16px var(--violet-glow, rgba(124,58,237,0.35));
+}
+
+/* ── Search ───────────────────────────────────────────────────────────── */
+.sidebar-search {
+  padding: 0 0.75rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #6B7280);
+  pointer-events: none;
+}
+
+#session-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  background: var(--bg-input, rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-primary, #E5E7EF);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+#session-search::placeholder { color: var(--text-muted, #6B7280); }
+#session-search:focus { border-color: var(--border-active, #7C3AED); }
+
+/* ── Sessions ─────────────────────────────────────────────────────────── */
+.sidebar-sessions {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.session-item {
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.session-item:hover { background: var(--bg-card, rgba(255,255,255,0.04)); }
+.session-item.active {
+  background: var(--violet-pale, rgba(124,58,237,0.1));
+  border-left: 2px solid var(--violet, #7C3AED);
+  padding-left: calc(0.75rem - 2px);
+}
+
+.session-item-title {
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--text-secondary, #9CA3AF);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.session-item.active .session-item-title { color: var(--violet-light, #A78BFA); }
+
+.session-item-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted, #6B7280);
+}
+
+.session-group-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #6B7280);
+  padding: 0.5rem 0.75rem 0.2rem;
+  opacity: 0.6;
+}
+
+.no-results-text {
+  font-size: 0.8rem;
+  color: var(--text-muted, #6B7280);
+  padding: 0.75rem;
+  text-align: center;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────────────── */
+.sidebar-nav {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+  flex-shrink: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  color: var(--text-muted, #6B7280);
+  text-decoration: none;
+  border-radius: var(--radius-sm, 6px);
+  transition: background 0.15s, color 0.15s;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+.sidebar-link:hover {
+  background: var(--bg-card, rgba(255,255,255,0.04));
+  color: var(--text-secondary, #9CA3AF);
+}
+.sidebar-link.active {
+  background: var(--violet-pale, rgba(124,58,237,0.1));
+  color: var(--violet-light, #A78BFA);
+}
+.sidebar-link:focus-visible {
+  outline: 2px solid var(--violet, #7C3AED);
+  outline-offset: -2px;
+}
+
+.nav-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────── */
+.sidebar-footer {
+  padding: 0.875rem;
+  border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-shrink: 0;
+}
+
+.user-avatar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--violet-pale, rgba(124,58,237,0.1));
+  color: var(--violet-light, #A78BFA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-meta {
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary, #E5E7EF);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted, #6B7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: var(--text-muted, #6B7280);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm, 6px);
+  flex-shrink: 0;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-logout:hover { color: var(--error, #F87171); }
+
+/* ── Collapsed state ──────────────────────────────────────────────────── */
+.sidebar.collapsed { width: 60px; }
+
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .sidebar-search,
+.sidebar.collapsed .session-group-label,
+.sidebar.collapsed .sidebar-sessions,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .user-meta,
+.sidebar.collapsed .btn-label {
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .new-chat-btn {
+  justify-content: center;
+  padding: 0.55rem;
+  margin: 0 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+.sidebar.collapsed .sidebar-brand { justify-content: center; padding: 1.25rem 0.75rem; }
+.sidebar.collapsed .sidebar-link { justify-content: center; padding: 0.6rem; }
+.sidebar.collapsed .sidebar-nav { padding: 0.5rem 0.5rem; }
+.sidebar.collapsed .sidebar-footer { justify-content: center; padding: 0.875rem 0.5rem; }
+.sidebar.collapsed .user-avatar-wrap { justify-content: center; }
+.sidebar.collapsed .btn-logout { display: none; }
+
+/* ── Mobile ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+    box-shadow: none;
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.4);
+  }
+  body.sidebar-open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 199;
+  }
+}
