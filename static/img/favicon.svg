@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Crystal AI">
+  <!-- Crystal/diamond shape -->
+  <polygon points="16,2 28,12 16,30 4,12" fill="#7C3AED" opacity="0.9"/>
+  <!-- Top-right facet (lighter) -->
+  <polygon points="16,2 28,12 16,16" fill="#A78BFA"/>
+  <!-- Top-left facet (medium) -->
+  <polygon points="16,2 4,12 16,16" fill="#9333EA"/>
+  <!-- Inner highlight line -->
+  <line x1="16" y1="2" x2="16" y2="16" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+  <!-- Sparkle -->
+  <circle cx="16" cy="10" r="2" fill="white" opacity="0.8"/>
+  <!-- Small sparkle dots -->
+  <circle cx="22" cy="7" r="1" fill="white" opacity="0.5"/>
+  <circle cx="10" cy="7" r="1" fill="white" opacity="0.5"/>
+</svg>
