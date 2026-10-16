@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Crystal AI{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Dashboard</h1>
+  <p class="page-subtitle">Welcome back, <span id="user-display-name">{{ current_user.display_name or 'Student' }}</span></p>
+</div>
+
+<div class="dashboard-grid">
+  <!-- Quick Start -->
+  <div class="dashboard-card dashboard-card--highlight">
+    <h2>Start a Conversation</h2>
+    <p>Ask Crystal anything about your courses and documents.</p>
+    <a href="{{ url_for('pages.chat') }}" class="btn btn-primary" id="new-chat-btn">New Chat</a>
+  </div>
+
+  <!-- Suggested Questions -->
+  <div class="dashboard-card">
+    <h2>Suggested Questions</h2>
+    <ul class="suggestion-list" id="suggestion-list">
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">What are the exam schedules?</button></li>
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">How do I apply for financial aid?</button></li>
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">What are the library hours?</button></li>
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">How do I register for courses?</button></li>
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">What is the attendance policy?</button></li>
+      <li><button class="suggestion-chip" onclick="startChatWith(this.textContent)">How do I contact academic support?</button></li>
+    </ul>
+  </div>
+
+  <!-- Recent Sessions -->
+  <div class="dashboard-card">
+    <h2>Recent Chats</h2>
+    <div id="recent-sessions-list" class="sessions-list">
+      <p class="loading-text">Loading...</p>
+    </div>
+    <a href="{{ url_for('pages.history') }}" class="btn btn-outline btn-small">View All</a>
+  </div>
+
+  <!-- Documents Summary -->
+  <div class="dashboard-card">
+    <h2>My Documents</h2>
+    <div id="docs-summary" class="docs-summary">
+      <p class="loading-text">Loading...</p>
+    </div>
+    <a href="{{ url_for('pages.documents') }}" class="btn btn-outline btn-small">Manage</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-redesign-nebula",
+  "task_description": "Complete dark glass Nebula-style UI redesign of the Crystal AI Flask app. Replace all light-purple CSS with a dark (#0D0D1A base) glass-morphism design system. Rebuild sidebar, chat page, auth pages, landing, documents, dashboard, history, profile, admin, and error pages. Fix JS bugs in chat.js and enhance sidebar.js and documents.js.",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Profile — Crystal AI{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Profile Settings</h1>
+</div>
+
+<div class="profile-sections">
+  <!-- Display Name -->
+  <section class="profile-card" aria-labelledby="profile-section-title">
+    <h2 id="profile-section-title">Personal Information</h2>
+    <form id="profile-form" novalidate>
+      <div class="form-group">
+        <label for="display-name" class="form-label">Display Name</label>
+        <input
+          type="text"
+          id="display-name"
+          class="form-input"
+          maxlength="100"
+          required
+          aria-describedby="display-name-error"
+          value="{{ current_user.display_name or '' }}"
+        >
+        <span id="display-name-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" value="{{ current_user.email }}" disabled aria-label="Email (read only)">
+      </div>
+      <div id="profile-msg" class="form-success" role="status" aria-live="polite"></div>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+  </section>
+
+  <!-- Change Password -->
+  <section class="profile-card" aria-labelledby="password-section-title">
+    <h2 id="password-section-title">Change Password</h2>
+    <form id="password-form" novalidate>
+      <div class="form-group">
+        <label for="current-password" class="form-label">Current Password</label>
+        <input type="password" id="current-password" class="form-input" autocomplete="current-password" required aria-describedby="current-pw-error">
+        <span id="current-pw-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+      <div class="form-group">
+        <label for="new-password" class="form-label">New Password</label>
+        <input type="password" id="new-password" class="form-input" autocomplete="new-password" required aria-describedby="new-pw-error">
+        <span id="new-pw-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+      <div class="form-group">
+        <label for="confirm-new-password" class="form-label">Confirm New Password</label>
+        <input type="password" id="confirm-new-password" class="form-input" autocomplete="new-password" required aria-describedby="confirm-pw-error">
+        <span id="confirm-pw-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+      <div id="password-msg" class="form-success" role="status" aria-live="polite"></div>
+      <div id="password-err" class="form-error" role="alert" aria-live="polite"></div>
+      <button type="submit" class="btn btn-primary">Update Password</button>
+    </form>
+  </section>
+
+  <!-- Danger Zone -->
+  <section class="profile-card profile-card--danger" aria-labelledby="danger-section-title">
+    <h2 id="danger-section-title">Danger Zone</h2>
+    <p>Permanently deactivate your account. This action cannot be undone.</p>
+    <button class="btn btn-danger" id="delete-account-btn" aria-label="Delete account">Delete Account</button>
+  </section>
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title" style="display:none;">
+  <div class="modal-overlay" id="delete-modal-overlay"></div>
+  <div class="modal-content">
+    <h3 id="delete-modal-title">Confirm Account Deletion</h3>
+    <p>Enter your password to permanently deactivate your account.</p>
+    <div class="form-group">
+      <label for="delete-password" class="form-label">Password</label>
+      <input type="password" id="delete-password" class="form-input" aria-describedby="delete-pw-error">
+      <span id="delete-pw-error" class="form-error" role="alert" aria-live="polite"></span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cancel-delete-btn">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-btn">Delete Account</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+{% endblock %}

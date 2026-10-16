@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Create Account — Crystal AI{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-circle">C</div>
+    </div>
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-subtitle">Join Crystal AI today</p>
+
+    <form id="register-form" novalidate>
+      <div class="form-group">
+        <label for="display-name" class="form-label">Display Name</label>
+        <input
+          type="text"
+          id="display-name"
+          name="display_name"
+          class="form-input"
+          placeholder="Your name"
+          autocomplete="name"
+          maxlength="100"
+          aria-describedby="display-name-error"
+        >
+        <span id="display-name-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="you@college.edu"
+          autocomplete="email"
+          required
+          aria-describedby="email-error"
+        >
+        <span id="email-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="At least 8 characters"
+          autocomplete="new-password"
+          required
+          aria-describedby="password-error password-hint"
+        >
+        <span id="password-hint" class="form-hint">
+          8+ characters, one uppercase, one number, one special character
+        </span>
+        <div class="password-strength" id="password-strength" aria-hidden="true">
+          <div class="strength-bar" id="strength-bar"></div>
+        </div>
+        <span id="password-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm-password" class="form-label">Confirm Password</label>
+        <input
+          type="password"
+          id="confirm-password"
+          name="confirm_password"
+          class="form-input"
+          placeholder="Repeat your password"
+          autocomplete="new-password"
+          required
+          aria-describedby="confirm-error"
+        >
+        <span id="confirm-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div id="register-error" class="form-error form-error--global" role="alert" aria-live="polite"></div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="register-btn">
+        Create Account
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a href="{{ url_for('pages.login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Chat History — Crystal AI{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Chat History</h1>
+</div>
+
+<div class="history-controls">
+  <input
+    type="search"
+    id="history-search"
+    class="form-input"
+    placeholder="Filter conversations..."
+    aria-label="Search chat history"
+  >
+</div>
+
+<div class="history-table-wrap">
+  <table class="data-table" id="history-table" aria-label="Chat history">
+    <thead>
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Messages</th>
+        <th scope="col">Last Updated</th>
+        <th scope="col"><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody id="history-body">
+      <tr><td colspan="4" class="loading-text">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination" id="history-pagination" aria-label="Pagination"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

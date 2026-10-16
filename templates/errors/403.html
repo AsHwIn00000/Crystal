@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}403 Forbidden — Crystal AI{% endblock %}
+{% block body_class %}error-page{% endblock %}
+
+{% block content %}
+<div class="error-container">
+  <div class="error-visual" aria-hidden="true">
+    <!-- shield-x icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+  </div>
+  <h1 class="error-code">403</h1>
+  <h2 class="error-title">Access Denied</h2>
+  <p class="error-message">You don't have permission to access this page.</p>
+  <div class="error-actions">
+    <a href="javascript:history.back()" class="btn btn-outline">Go Back</a>
+    <a href="{{ url_for('pages.index') }}" class="btn btn-primary">Home</a>
+  </div>
+</div>
+{% endblock %}

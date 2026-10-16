@@ -98,13 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       try {
-        await API.post('/auth/logout', {});
-        window.location.href = '/login';
-      } catch (err) {
-        if (err.message !== 'Unauthorized') {
-          showToast('Logout failed. Please try again.', 'error');
-        }
-      }
+        await fetch('/auth/logout', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || '' },
+          credentials: 'same-origin'
+        });
+      } catch (_) { /* ignore network errors, still redirect */ }
+      window.location.href = '/login';
     });
   }
 

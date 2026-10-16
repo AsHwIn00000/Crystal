@@ -1,0 +1,14 @@
+Crystal AI Test Document
+
+This is a sample text file used for testing the ingestion pipeline.
+
+Section 1: Introduction
+The Crystal AI platform provides AI-powered assistance to college students.
+
+Section 2: Features
+- Document upload and processing
+- RAG-based question answering
+- Chat history management
+
+Section 3: Usage
+Students can upload their course materials and ask questions.

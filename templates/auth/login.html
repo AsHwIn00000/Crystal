@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Sign In — Crystal AI{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-circle">C</div>
+    </div>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to your account</p>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-input"
+          placeholder="you@college.edu"
+          autocomplete="email"
+          required
+          aria-describedby="email-error"
+        >
+        <span id="email-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-input"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+          aria-describedby="password-error"
+        >
+        <span id="password-error" class="form-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="form-group form-group--inline">
+        <label class="checkbox-label">
+          <input type="checkbox" id="remember-me" name="remember_me">
+          <span>Remember me</span>
+        </label>
+      </div>
+
+      <div id="login-error" class="form-error form-error--global" role="alert" aria-live="polite"></div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+        Sign In
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Don't have an account? <a href="{{ url_for('pages.register') }}">Create one</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

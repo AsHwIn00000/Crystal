@@ -1,0 +1,104 @@
+/* ─── Auth pages — Cortex Light Theme ──────────────────────────────── */
+body.auth-page {
+  background: var(--bg-base, #F3F2F7);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 2rem 1rem;
+  position: relative;
+}
+
+body.auth-page::before {
+  content: '';
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(ellipse, rgba(168, 85, 247, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.auth-page .main-content {
+  padding: 0 !important; margin: 0 !important;
+  width: 100%; display: flex; align-items: center; justify-content: center;
+}
+
+.auth-container {
+  width: 100%; max-width: 420px;
+  position: relative; z-index: 1;
+}
+
+.auth-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-xl, 24px);
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+}
+
+.auth-logo {
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-circle {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #A855F7, #9333EA);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 800; color: #fff;
+  box-shadow: 0 4px 16px rgba(147, 51, 234, 0.3);
+}
+
+.auth-title {
+  text-align: center; font-size: 1.5rem; font-weight: 700;
+  color: #7C3AED; margin-bottom: 0.3rem; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #A855F7, #7C3AED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-subtitle {
+  text-align: center; color: #64748B;
+  font-size: 0.9rem; margin-bottom: 1.75rem;
+}
+
+.auth-card .btn-primary {
+  padding: 0.75rem; font-size: 0.95rem;
+  border-radius: 12px;
+  background: #18181B;
+  color: #FFFFFF;
+  margin-top: 0.5rem;
+  width: 100%; justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.auth-card .btn-primary:hover {
+  background: #27272A;
+  transform: translateY(-1px);
+}
+
+.auth-footer {
+  text-align: center; margin-top: 1.5rem;
+  font-size: 0.875rem; color: #64748B;
+}
+
+.auth-footer a {
+  color: #9333EA; font-weight: 600; text-decoration: none;
+}
+
+.auth-footer a:hover { text-decoration: underline; }
+
+.password-strength {
+  height: 4px; background: #E2E8F0;
+  border-radius: 2px; margin-top: 0.5rem; overflow: hidden;
+}
+
+.strength-bar {
+  height: 100%; width: 0; border-radius: 2px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.strength-bar.weak   { width: 33%; background: #EF4444; }
+.strength-bar.medium { width: 66%; background: #F59E0B; }
+.strength-bar.strong { width: 100%; background: #10B981; }

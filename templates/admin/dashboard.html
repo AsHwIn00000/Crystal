@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Crystal AI{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Admin Dashboard</h1>
+</div>
+
+<!-- Stats Row -->
+<div class="admin-stats" id="admin-stats">
+  <div class="stat-card">
+    <div class="stat-value" id="stat-users">—</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="stat-sessions">—</div>
+    <div class="stat-label">Active Sessions Today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="stat-college-docs">—</div>
+    <div class="stat-label">College Documents</div>
+  </div>
+  <div class="stat-card stat-card--alert" id="failed-docs-card">
+    <div class="stat-value" id="stat-failed">—</div>
+    <div class="stat-label">Failed Documents</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="admin-tabs" role="tablist">
+  <button class="tab-btn tab-btn--active" role="tab" aria-selected="true" aria-controls="tab-documents" id="tab-docs-btn">College Documents</button>
+  <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-users" id="tab-users-btn">Users</button>
+  <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-audit" id="tab-audit-btn">Audit Log</button>
+</div>
+
+<!-- College Documents Tab -->
+<div id="tab-documents" role="tabpanel" aria-labelledby="tab-docs-btn">
+  <div class="admin-actions">
+    <button class="btn btn-primary" id="upload-college-btn">Upload Document</button>
+    <input type="file" id="college-file-input" class="sr-only" accept=".pdf,.docx,.pptx,.txt,.png,.jpg,.jpeg" aria-label="Choose college document">
+  </div>
+  <div class="upload-progress" id="college-upload-progress" style="display:none;" aria-live="polite">
+    <div class="progress-bar" id="college-progress-bar" role="progressbar"></div>
+    <span id="college-progress-text">Uploading...</span>
+  </div>
+  <table class="data-table" aria-label="College documents">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Type</th>
+        <th scope="col">Status</th>
+        <th scope="col">Uploaded</th>
+        <th scope="col"><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody id="college-docs-body">
+      <tr><td colspan="5" class="loading-text">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Users Tab -->
+<div id="tab-users" role="tabpanel" aria-labelledby="tab-users-btn" style="display:none;">
+  <table class="data-table" aria-label="Users">
+    <thead>
+      <tr>
+        <th scope="col">Email</th>
+        <th scope="col">Name</th>
+        <th scope="col">Role</th>
+        <th scope="col">Status</th>
+        <th scope="col">Joined</th>
+        <th scope="col"><span class="sr-only">Actions</span></th>
+      </tr>
+    </thead>
+    <tbody id="users-body">
+      <tr><td colspan="6" class="loading-text">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Audit Log Tab -->
+<div id="tab-audit" role="tabpanel" aria-labelledby="tab-audit-btn" style="display:none;">
+  <table class="data-table" aria-label="Audit log">
+    <thead>
+      <tr>
+        <th scope="col">Event</th>
+        <th scope="col">User ID</th>
+        <th scope="col">IP</th>
+        <th scope="col">Time</th>
+      </tr>
+    </thead>
+    <tbody id="audit-body">
+      <tr><td colspan="4" class="loading-text">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

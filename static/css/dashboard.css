@@ -1,0 +1,147 @@
+/* ─── Dashboard & Inner Pages — Cortex Light Glass Theme ────────────── */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.dashboard-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-xl, 20px);
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.dashboard-card h2 {
+  color: #0F172A;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.dashboard-card p {
+  color: #64748B;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+.dashboard-card--highlight {
+  border-left: 4px solid #9333EA;
+  background: linear-gradient(135deg, #FFFFFF, #F5F3FF);
+}
+
+/* ── Suggestion chips ────────────────────────────────────────────────── */
+.suggestion-list {
+  list-style: none; display: flex; flex-direction: column;
+  gap: 0.5rem; margin-bottom: 1rem;
+}
+
+.suggestion-list .suggestion-chip {
+  display: block; text-align: left; padding: 0.55rem 0.85rem;
+  background: #FAFAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  color: #334155;
+  cursor: pointer; font-size: 0.85rem; width: 100%;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+
+.suggestion-list .suggestion-chip:hover {
+  border-color: #A855F7;
+  color: #9333EA;
+  background: #FFFFFF;
+}
+
+/* ── Session rows ────────────────────────────────────────────────────── */
+.sessions-list { margin-bottom: 1rem; }
+
+.session-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #F1F5F9;
+}
+.session-row:last-child { border-bottom: none; }
+
+.session-row-title {
+  font-size: 0.875rem; color: #334155;
+  text-decoration: none;
+  font-weight: 500;
+}
+.session-row-title:hover { color: #9333EA; }
+
+.session-row-meta { font-size: 0.75rem; color: #94A3B8; }
+
+/* ── Upload Zone ─────────────────────────────────────────────────────── */
+.upload-zone {
+  background: #FFFFFF;
+  border: 2px dashed #CBD5E1;
+  border-radius: var(--radius-xl, 20px);
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.upload-zone.dragover, .upload-zone:hover {
+  border-color: #A855F7;
+  background: #F5F3FF;
+}
+
+.upload-icon {
+  color: #8B5CF6;
+  width: 44px; height: 44px;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+.upload-text { color: #334155; font-size: 0.95rem; font-weight: 500; }
+.upload-link { color: #9333EA; cursor: pointer; text-decoration: underline; font-weight: 600; }
+.upload-hint { color: #94A3B8; font-size: 0.8rem; margin-top: 0.4rem; }
+
+.upload-progress {
+  background: #E2E8F0;
+  border-radius: 99px; height: 6px;
+  margin-top: 1rem; overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #C084FC, #9333EA);
+  border-radius: 99px;
+  transition: width 0.3s;
+}
+
+.progress-text { font-size: 0.8rem; color: #64748B; margin-top: 0.5rem; }
+
+/* ── Documents table wrap ────────────────────────────────────────────── */
+.docs-table-wrap {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-xl, 20px);
+  overflow: hidden;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+/* ── Profile Cards ────────────────────────────────────────────────────── */
+.profile-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-xl, 20px);
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.profile-sections { max-width: 640px; }
+.profile-card--danger { border-color: rgba(239, 68, 68, 0.25); }
