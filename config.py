@@ -11,7 +11,14 @@ class Config:
     # the subclass's overrides are already in effect.
     SECRET_KEY = os.getenv('SECRET_KEY', 'change-me-in-production')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR / "crystal.db"}')
+    @staticmethod
+    def _database_uri():
+        url = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR / "crystal.db"}')
+        if url.startswith('postgres://'):
+            url = url.replace('postgres://', 'postgresql://', 1)
+        return url
+
+    SQLALCHEMY_DATABASE_URI = _database_uri.__func__()
 
     @staticmethod
     def _engine_options():

@@ -35,6 +35,109 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Sign In';
       }
     });
+
+    // ── Show / Hide Password Toggle ─────────────────────────────────
+    const togglePassBtn = document.getElementById('toggle-password-btn');
+    const passInput = document.getElementById('password');
+    if (togglePassBtn && passInput) {
+      togglePassBtn.addEventListener('click', () => {
+        const isPassword = passInput.type === 'password';
+        passInput.type = isPassword ? 'text' : 'password';
+        togglePassBtn.innerHTML = isPassword
+          ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`
+          : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+      });
+    }
+
+    // ── Forgot Password Modal Logic ─────────────────────────────────
+    const forgotLink = document.getElementById('forgot-password-link');
+    const forgotModal = document.getElementById('forgot-modal');
+    const closeForgotModal = document.getElementById('close-forgot-modal');
+    const submitForgotEmail = document.getElementById('submit-forgot-email');
+    const submitResetPassword = document.getElementById('submit-reset-password');
+    let resetToken = null;
+
+    if (forgotLink && forgotModal) {
+      forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        forgotModal.style.display = 'flex';
+        document.getElementById('forgot-step-1').style.display = 'block';
+        document.getElementById('forgot-step-2').style.display = 'none';
+        document.getElementById('forgot-email-error').textContent = '';
+      });
+
+      closeForgotModal?.addEventListener('click', () => {
+        forgotModal.style.display = 'none';
+      });
+
+      submitForgotEmail?.addEventListener('click', async () => {
+        const email = document.getElementById('forgot-email')?.value.trim();
+        const errEl = document.getElementById('forgot-email-error');
+        if (!email) {
+          errEl.textContent = 'Please enter your email.';
+          return;
+        }
+        submitForgotEmail.disabled = true;
+        submitForgotEmail.textContent = 'Verifying...';
+
+        try {
+          const res = await API.post('/auth/forgot-password', { email });
+          const data = await res.json();
+          if (res.ok && data.reset_token) {
+            resetToken = data.reset_token;
+            document.getElementById('forgot-step-1').style.display = 'none';
+            document.getElementById('forgot-step-2').style.display = 'block';
+          } else {
+            errEl.textContent = data.error || 'Unable to process request.';
+          }
+        } catch (_) {
+          errEl.textContent = 'Connection error. Please try again.';
+        } finally {
+          submitForgotEmail.disabled = false;
+          submitForgotEmail.textContent = 'Continue';
+        }
+      });
+
+      submitResetPassword?.addEventListener('click', async () => {
+        const newPassword = document.getElementById('reset-new-password')?.value;
+        const confirmPassword = document.getElementById('reset-confirm-password')?.value;
+        const errEl = document.getElementById('reset-error');
+        errEl.textContent = '';
+
+        if (!newPassword || newPassword.length < 8) {
+          errEl.textContent = 'Password must be at least 8 characters with uppercase, digit, and symbol.';
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          errEl.textContent = 'Passwords do not match.';
+          return;
+        }
+
+        submitResetPassword.disabled = true;
+        submitResetPassword.textContent = 'Saving...';
+
+        try {
+          const res = await API.post('/auth/reset-password', {
+            token: resetToken,
+            new_password: newPassword,
+            confirm_new_password: confirmPassword
+          });
+          const data = await res.json();
+          if (res.ok) {
+            alert(data.message || 'Password reset successfully! Please sign in.');
+            forgotModal.style.display = 'none';
+            document.getElementById('password').value = '';
+          } else {
+            errEl.textContent = data.error || 'Failed to reset password.';
+          }
+        } catch (_) {
+          errEl.textContent = 'Connection error. Please try again.';
+        } finally {
+          submitResetPassword.disabled = false;
+          submitResetPassword.textContent = 'Save New Password';
+        }
+      });
+    }
   }
 
   // ── Register ───────────────────────────────────────────────────────

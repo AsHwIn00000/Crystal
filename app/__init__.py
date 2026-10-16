@@ -111,6 +111,18 @@ def create_app(config_name: str = 'development') -> Flask:
     from app.ingestion.job_runner import get_job_runner
     get_job_runner().init_app(app)
 
+    # Automatically ensure tables exist on startup (SQLite, PostgreSQL/Supabase, Railway)
+    with app.app_context():
+        try:
+            from app.models.user import User
+            from app.models.chat import ChatSession, ChatMessage, SavedPrompt
+            from app.models.document import Document, DocumentChunk, DocumentProcessingJob
+            from app.models.feedback import Feedback
+            from app.models.audit import AuditEvent
+            db.create_all()
+        except Exception as e:
+            app.logger.warning('db.create_all() exception on startup: %s', e)
+
     # Register CLI commands
     _register_cli(app)
 

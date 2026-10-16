@@ -142,6 +142,77 @@ def change_password():
     return jsonify({'message': 'Password updated.'}), 200
 
 
+@auth_bp.route('/forgot-password', methods=['POST'])
+@limiter.limit('5 per minute')
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return jsonify({'error': 'Email is required.'}), 400
+
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
+    if not user or not user.is_active:
+        # Prevent user enumeration: always return friendly success response
+        return jsonify({
+            'message': 'If an account exists with this email, a reset code has been processed.'
+        }), 200
+
+    # Generate a secure timed reset token
+    import secrets
+    from itsdangerous import URLSafeTimedSerializer
+    from flask import current_app
+
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = serializer.dumps(user.email, salt='password-reset-salt')
+
+    current_app.logger.info("Password reset requested for %s. Reset Token: %s", user.email, token)
+
+    return jsonify({
+        'message': 'Password reset verified. You may now choose your new password.',
+        'reset_token': token
+    }), 200
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+@limiter.limit('5 per minute')
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    token = data.get('token', '')
+    new_password = data.get('new_password', '')
+    confirm_new = data.get('confirm_new_password', '')
+
+    if not token:
+        return jsonify({'error': 'Reset token is missing or expired.'}), 400
+
+    if not new_password or not PASSWORD_RE.match(new_password):
+        return jsonify({'error': 'Password must be 8+ characters with uppercase, digit, and special character.'}), 400
+    if new_password != confirm_new:
+        return jsonify({'error': 'Passwords do not match.'}), 400
+
+    from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+    from flask import current_app
+
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=1800)  # 30 min expiration
+    except (SignatureExpired, BadSignature):
+        return jsonify({'error': 'Reset link or token has expired or is invalid. Please request a new one.'}), 400
+
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
+    if not user or not user.is_active:
+        return jsonify({'error': 'User not found.'}), 404
+
+    try:
+        user.set_password(new_password)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({'error': 'Could not update password. Please try again.'}), 500
+
+    return jsonify({'message': 'Password has been successfully reset! You can now sign in.'}), 200
+
+
 @auth_bp.route('/account', methods=['DELETE'])
 @login_required
 def delete_account():
