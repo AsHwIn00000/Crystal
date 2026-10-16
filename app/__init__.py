@@ -27,7 +27,11 @@ def create_app(config_name: str = 'development') -> Flask:
     limiter.init_app(app)
     csrf.init_app(app)
 
-    # Configure user_loader with remember-me bypass for password_version check
+    # Support HTTPS behind reverse proxies (Railway, Render, Cloudflare)
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+    # Configure user_loader
     @login_manager.user_loader
     def load_user(user_id):
         from flask import session as flask_session
@@ -35,17 +39,8 @@ def create_app(config_name: str = 'development') -> Flask:
         user = db.session.get(User, int(user_id))
         if user is None or not user.is_active:
             return None
-        stored_version = flask_session.get('password_version')
-        if stored_version is None:
-            # Remember-me cookie load: session is empty (Flask-Login creates a fresh
-            # session for cookie-based logins, so flask_session has no password_version).
-            # Populate the session so all subsequent requests have a version to compare.
-            # This means the remember-me cookie is accepted once per browser session;
-            # any future password change will be detected on the next request.
-            flask_session['password_version'] = user.password_version
-        elif stored_version != user.password_version:
-            # Password was changed on another device — invalidate this session.
-            return None
+        # Keep session synchronized with current password_version
+        flask_session['password_version'] = user.password_version
         return user
 
     # Register blueprints

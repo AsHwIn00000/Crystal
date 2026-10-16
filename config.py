@@ -38,9 +38,10 @@ class Config:
     SQLALCHEMY_ENGINE_OPTIONS = _engine_options.__func__()
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = os.getenv('FLASK_ENV') == 'production'
     REMEMBER_COOKIE_HTTPONLY = True
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+    REMEMBER_COOKIE_SECURE = os.getenv('FLASK_ENV') == 'production'
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     WTF_CSRF_ENABLED = True
     # Tell Flask-WTF to accept CSRF token from the X-CSRFToken request header.
     # This is required for JSON API calls made via fetch() from the frontend.
