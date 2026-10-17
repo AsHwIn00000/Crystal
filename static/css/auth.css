@@ -102,3 +102,40 @@ body.auth-page .main-content {
 .strength-bar.weak   { width: 33%; background: #EF4444; }
 .strength-bar.medium { width: 66%; background: #F59E0B; }
 .strength-bar.strong { width: 100%; background: #10B981; }
+
+/* ─── Form validation error enhancements ─── */
+.form-input.input-error {
+  border-color: #EF4444 !important;
+  background-color: #FEF2F2 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+  animation: shake 0.35s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.form-error {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #DC2626;
+  margin-top: 0.35rem;
+}
+
+.form-error--global:not(:empty) {
+  padding: 0.75rem 1rem;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 10px;
+  color: #B91C1C;
+  font-size: 0.84rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}

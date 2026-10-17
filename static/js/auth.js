@@ -18,17 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
       btn.disabled = true;
       btn.textContent = 'Signing in...';
+      const passwordInput = document.getElementById('password');
+      const emailInput = document.getElementById('email');
+      passwordInput?.classList.remove('input-error');
+      emailInput?.classList.remove('input-error');
+
       try {
         const res = await API.post('/auth/login', { email, password, remember_me: rememberMe });
         const data = await res.json();
         if (res.ok) {
           window.location.href = '/chat';
         } else {
-          setError('login-error', data.error || 'Login failed.');
+          const errMsg = data.error || 'Invalid email or password.';
+          passwordInput?.classList.add('input-error');
+          setError('password-error', '⚠️ ' + errMsg);
+          setError('login-error', '⚠️ Incorrect credentials. Please check your email and password, or use "Forgot password?".');
         }
       } catch (err) {
         if (err.message !== 'Unauthorized' && err.message !== 'Forbidden') {
-          setError('login-error', 'Connection error. Please try again.');
+          setError('login-error', '⚠️ Connection error. Please try again.');
         }
       } finally {
         btn.disabled = false;
