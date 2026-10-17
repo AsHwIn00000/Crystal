@@ -215,6 +215,23 @@ def send_message(session_id):
     if not user_text and attachments:
         user_text = f"Uploaded study file: {attachments[0].get('filename', 'document')}"
 
+    # If no document_ids explicitly passed, inherit from this chat session's uploaded attachments
+    if not document_ids:
+        prev_attachments = db.session.execute(
+            db.select(ChatMessage.attachments_json)
+            .filter_by(session_id=session_id)
+            .where(ChatMessage.attachments_json.isnot(None))
+            .order_by(ChatMessage.created_at.desc())
+        ).scalars().all()
+        for att_str in prev_attachments:
+            try:
+                atts = json.loads(att_str) if isinstance(att_str, str) else (att_str or [])
+                for a in atts:
+                    if isinstance(a, dict) and a.get('doc_id') and a['doc_id'] not in document_ids:
+                        document_ids.append(a['doc_id'])
+            except Exception:
+                pass
+
     # Validate document_ids ownership and wait briefly if ingestion is still running
     if document_ids:
         import time

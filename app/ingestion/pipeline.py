@@ -85,15 +85,10 @@ def ingest_document(document_id: int):
             )
             db_chunks.append(db_chunk)
 
-        db.session.add_all(db_chunks)
-        db.session.flush()  # Populates db_chunk.id for each object
-
-        # F11: Detect image files with no extractable text (OCR unavailable or blank image)
+        # Detect image files with no extractable text (OCR unavailable or blank image)
         if len(db_chunks) == 0 and doc.file_type in ('png', 'jpg', 'jpeg'):
             if not OCR_AVAILABLE:
-                error_msg = (
-                    'No text extracted. Tesseract OCR may not be installed.'
-                )
+                error_msg = 'No text extracted. Tesseract OCR may not be installed.'
             else:
                 error_msg = 'No text was found in this image.'
             doc.status = DocumentStatus.FAILED
@@ -103,26 +98,31 @@ def ingest_document(document_id: int):
             db.session.commit()
             return
 
-        # Embed and add to vector store
-        if db_chunks:
-            texts = [c.content for c in db_chunks]
-            embeddings = embedder.embed(texts)
-            meta_entries = [
-                {
-                    'chunk_db_id': c.id,
-                    'document_id': doc.id,
-                    'scope': doc.scope.value,
-                    'user_id': doc.user_id
-                }
-                for c in db_chunks
-            ]
-            vector_store.add_chunks(scope_key, embeddings, meta_entries)
-
+        db.session.add_all(db_chunks)
         doc.status = DocumentStatus.READY
         job.status = JobStatus.DONE
         job.completed_at = datetime.now(timezone.utc)
         db.session.commit()
-        logger.info('Document %d ingested successfully: %d chunks', document_id, len(db_chunks))
+        logger.info('Document %d parsed and saved: %d chunks', document_id, len(db_chunks))
+
+        # Embed and add to vector store (safe background operation)
+        if db_chunks:
+            try:
+                texts = [c.content for c in db_chunks]
+                embeddings = embedder.embed(texts)
+                meta_entries = [
+                    {
+                        'chunk_db_id': c.id,
+                        'document_id': doc.id,
+                        'scope': doc.scope.value,
+                        'user_id': doc.user_id
+                    }
+                    for c in db_chunks
+                ]
+                vector_store.add_chunks(scope_key, embeddings, meta_entries)
+                logger.info('Document %d vector indexing complete.', document_id)
+            except Exception as vec_err:
+                logger.warning('Document %d vector embedding warning (fallback to DB search): %s', document_id, vec_err)
 
     except Exception as exc:
         db.session.rollback()
