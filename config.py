@@ -13,7 +13,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     @staticmethod
     def _database_uri():
-        url = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR / "crystal.db"}')
+        url = os.getenv('DATABASE_URL')
+        if not url:
+            return f'sqlite:///{BASE_DIR / "crystalai_dev.db"}'
         if url.startswith('postgres://'):
             url = url.replace('postgres://', 'postgresql://', 1)
         return url
@@ -73,9 +75,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SESSION_COOKIE_SECURE = False
     WTF_CSRF_ENABLED = False   # disabled in dev — API uses session auth, no CSRF needed
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL', f'sqlite:///{BASE_DIR / "crystalai_dev.db"}'
-    )
+    SQLALCHEMY_DATABASE_URI = Config._database_uri()
 
 
 class TestingConfig(Config):
