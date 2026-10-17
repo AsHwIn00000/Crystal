@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('footer-help-btn')?.addEventListener('click', showHelpModal);
 
   // ── Logout ────────────────────────────────────────────────────────────────
-  document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  const doLogout = async () => {
     try {
       await fetch('/auth/logout', {
         method: 'POST',
@@ -165,7 +165,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     } catch (_) {}
     window.location.href = '/login';
-  });
+  };
+  document.getElementById('logout-btn')?.addEventListener('click', doLogout);
+  document.getElementById('topbar-logout-btn')?.addEventListener('click', doLogout);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

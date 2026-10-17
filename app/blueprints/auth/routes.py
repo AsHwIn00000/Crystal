@@ -33,7 +33,7 @@ def register():
 
     existing = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
     if existing:
-        return jsonify({'error': 'Registration failed. Please check your input.'}), 400
+        return jsonify({'error': 'An account with this email already exists. Please Sign In instead.'}), 400
 
     try:
         user = User(
