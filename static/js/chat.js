@@ -324,8 +324,13 @@ async function sendTextMessage(content, documentIds = [], attachments = []) {
     hideTypingIndicator();
 
     if (!res.ok) {
-      const data = await res.json();
-      showToast(data.error || 'Failed to get answer.', 'error');
+      let errMsg = 'Failed to get answer.';
+      try {
+        const errData = await res.json();
+        errMsg = errData.error || errMsg;
+      } catch (_) {}
+      showToast(errMsg, 'error');
+      appendMessage('assistant', `⚠️ **Error (${res.status})**: ${errMsg}`);
       return;
     }
 
@@ -343,7 +348,9 @@ async function sendTextMessage(content, documentIds = [], attachments = []) {
   } catch (err) {
     hideTypingIndicator();
     if (err.message !== 'Unauthorized') {
-      showToast('Error communicating with Crystal AI.', 'error');
+      const msg = err.message || 'Error communicating with Crystal AI.';
+      showToast(msg, 'error');
+      appendMessage('assistant', `⚠️ **Connection Error**: ${msg}. Please try again.`);
     }
   }
 }

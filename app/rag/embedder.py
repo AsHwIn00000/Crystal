@@ -10,12 +10,28 @@ class SentenceTransformerEmbedder:
 
     def _get_model(self):
         if self._model is None:
+            import gc
+            try:
+                import torch
+                torch.set_num_threads(1)
+                torch.set_grad_enabled(False)
+            except Exception:
+                pass
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(self.model_name)
+            self._model = SentenceTransformer(self.model_name, device='cpu')
+            gc.collect()
         return self._model
 
     def embed(self, texts: list) -> np.ndarray:
-        return self._get_model().encode(texts, normalize_embeddings=True, batch_size=32)
+        import gc
+        res = self._get_model().encode(
+            texts,
+            normalize_embeddings=True,
+            batch_size=8,
+            show_progress_bar=False
+        )
+        gc.collect()
+        return res
 
     def embed_one(self, text: str) -> np.ndarray:
         return self.embed([text])[0]

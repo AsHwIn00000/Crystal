@@ -37,34 +37,49 @@ class HybridRetriever:
     def retrieve(self, query: str, user_id: int,
                  document_ids: list = None) -> list:
         """Retrieve relevant chunks for the query, respecting scope boundaries."""
-        query_vec = self.embedder.embed_one(query)
         results = []
 
         # --- College-wide scope ---
         cw_allowed = self._get_scope_chunk_ids(
             DocumentScope.COLLEGE_WIDE, user_id=None, document_ids=document_ids
         )
-        cw_results = self.vector_store.search(
-            'college_wide', query_vec, top_k=self.top_k, allowed_chunk_ids=cw_allowed
-        )
-        results.extend(cw_results)
-
         # --- Private scope (current user only) ---
         priv_allowed = self._get_scope_chunk_ids(
             DocumentScope.PRIVATE, user_id=user_id, document_ids=document_ids
         )
-        priv_results = self.vector_store.search(
-            f'private_{user_id}', query_vec, top_k=self.top_k, allowed_chunk_ids=priv_allowed
-        )
-        results.extend(priv_results)
 
-        # --- Keyword augmentation (hybrid) ---
+        # Keyword augmentation (hybrid)
         keyword_chunk_ids = self._keyword_search(query, user_id, document_ids)
-        keyword_results = self._load_chunks_by_ids(
-            keyword_chunk_ids,
-            already_seen={r['chunk_db_id'] for r in results}
-        )
-        results.extend(keyword_results)
+
+        # Fast path: If there are NO available document chunks in scope for this query,
+        # return immediately without loading heavy embedding models into memory.
+        if not cw_allowed and not priv_allowed and not keyword_chunk_ids:
+            return []
+
+        # Vector search (only when documents exist in scope)
+        if cw_allowed or priv_allowed:
+            try:
+                query_vec = self.embedder.embed_one(query)
+                if cw_allowed:
+                    cw_results = self.vector_store.search(
+                        'college_wide', query_vec, top_k=self.top_k, allowed_chunk_ids=cw_allowed
+                    )
+                    results.extend(cw_results)
+                if priv_allowed:
+                    priv_results = self.vector_store.search(
+                        f'private_{user_id}', query_vec, top_k=self.top_k, allowed_chunk_ids=priv_allowed
+                    )
+                    results.extend(priv_results)
+            except Exception as e:
+                current_app.logger.warning('RAG vector search embedding failed: %s', e)
+
+        # Add keyword results
+        if keyword_chunk_ids:
+            keyword_results = self._load_chunks_by_ids(
+                keyword_chunk_ids,
+                already_seen={r['chunk_db_id'] for r in results}
+            )
+            results.extend(keyword_results)
 
         # Filter by threshold, sort by score, deduplicate, take top_k
         raw_candidates = sorted(results, key=lambda r: r.get('score', 0), reverse=True)

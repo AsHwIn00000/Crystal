@@ -57,7 +57,7 @@ class Config:
     RATELIMIT_ENABLED = True
     # AI
     GROQ_API_KEY = os.getenv('GROQ_API_KEY')  # None default — validated in create_app
-    GROQ_MODEL_ID = os.getenv('GROQ_MODEL_ID', 'llama-3.3-70b-versatile')
+    GROQ_MODEL_ID = os.getenv('GROQ_MODEL_ID', 'qwen/qwen3.8-27b')
     AI_PROVIDER_CLASS = os.getenv('AI_PROVIDER_CLASS', 'app.ai.groq_provider.GroqProvider')
     # RAG
     EMBEDDING_MODEL = os.getenv('EMBEDDING_MODEL', 'all-MiniLM-L6-v2')

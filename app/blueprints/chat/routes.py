@@ -241,7 +241,7 @@ def send_message(session_id):
     if attachments:
         user_msg.attachments = attachments
     db.session.add(user_msg)
-    db.session.flush()  # get user_msg.id
+    db.session.commit()  # Persist user message immediately
 
     # 3. Retrieve relevant chunks (scope-filtered)
     try:
