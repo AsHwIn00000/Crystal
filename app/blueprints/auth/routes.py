@@ -46,14 +46,20 @@ def register():
         db.session.commit()
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'Registration failed. Please try again.'}), 400
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Registration failed: {str(e)}'}), 400
 
-    login_user(user)
-    flask_session['password_version'] = user.password_version
+    try:
+        login_user(user)
+        flask_session['password_version'] = user.password_version
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
 
     return jsonify({
         'message': 'Account created.',
-        'user': {'id': user.id, 'email': user.email, 'display_name': user.display_name, 'role': user.role.value}
+        'user': {'id': user.id, 'email': user.email, 'display_name': user.display_name, 'role': getattr(user.role, 'value', str(user.role))}
     }), 201
 
 
