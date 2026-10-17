@@ -115,6 +115,15 @@ def create_app(config_name: str = 'development') -> Flask:
             from app.models.feedback import Feedback
             from app.models.audit import AuditEvent
             db.create_all()
+
+            # Ensure all backward-compatible columns exist in PostgreSQL
+            try:
+                from sqlalchemy import text
+                with db.engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS attachments_json TEXT;"))
+                    conn.commit()
+            except Exception as col_err:
+                app.logger.warning('Column migration warning: %s', col_err)
         except Exception as e:
             app.logger.warning('db.create_all() exception on startup: %s', e)
 
