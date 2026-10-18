@@ -138,6 +138,11 @@ class HybridRetriever:
         return rerank(hydrated, query=query)
 
     def _get_scope_chunk_ids(self, scope, user_id, document_ids) -> set:
+        # Strict session isolation: private documents are only accessible if explicitly
+        # attached to the current chat session
+        if scope == DocumentScope.PRIVATE and not document_ids:
+            return set()
+
         q = db.session.query(DocumentChunk.id).join(Document).filter(
             Document.scope == scope,
             Document.status == DocumentStatus.READY,
@@ -149,28 +154,37 @@ class HybridRetriever:
         return {row[0] for row in q.all()}
 
     def _keyword_search(self, query: str, user_id: int, document_ids) -> list:
-        """SQL LIKE keyword search. Strips LIKE metacharacters to prevent wildcard table scans."""
+        """SQL LIKE keyword search. Strips stopwords to prevent common words like 'what' matching everything."""
+        STOPWORDS = {
+            'what', 'which', 'who', 'whom', 'this', 'that', 'these', 'those',
+            'have', 'has', 'had', 'having', 'with', 'from', 'about', 'into',
+            'through', 'during', 'before', 'after', 'above', 'below', 'to',
+            'under', 'again', 'further', 'then', 'once', 'here', 'there',
+            'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each',
+            'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor',
+            'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very',
+            'tell', 'give', 'show', 'explain', 'meaning', 'summary', 'overview',
+            'does', 'done', 'will', 'would', 'could', 'should'
+        }
+
+        # If user did not attach documents, don't search private documents
+        if not document_ids:
+            return []
+
         raw_terms = query.split()
         terms = []
         for t in raw_terms:
-            clean = re.sub(r'[%_\\]', '', t)
-            if len(clean) > 3:
+            clean = re.sub(r'[%_\\]', '', t).lower()
+            if len(clean) > 3 and clean not in STOPWORDS:
                 terms.append(clean)
         terms = terms[:5]
         if not terms:
             return []
+
         q = db.session.query(DocumentChunk.id).join(Document).filter(
             Document.status == DocumentStatus.READY,
-            db.or_(
-                db.and_(Document.scope == DocumentScope.COLLEGE_WIDE),
-                db.and_(
-                    Document.scope == DocumentScope.PRIVATE,
-                    Document.user_id == user_id
-                )
-            )
+            Document.id.in_(document_ids)
         )
-        if document_ids:
-            q = q.filter(Document.id.in_(document_ids))
         filters = [DocumentChunk.content.ilike(f'%{term}%') for term in terms]
         q = q.filter(db.or_(*filters)).limit(20)
         return [row[0] for row in q.all()]

@@ -275,16 +275,19 @@ def send_message(session_id):
         sources_list = []
     else:
         # 3. Retrieve relevant chunks (scope-filtered)
-        try:
-            retriever = HybridRetriever(current_app._get_current_object())
-            chunks = retriever.retrieve(
-                query=user_text,
-                user_id=current_user.id,
-                document_ids=document_ids if document_ids else None
-            )
-        except Exception as e:
-            current_app.logger.warning('RAG retrieval failed: %s', e)
-            chunks = []
+        # Strict session isolation: only retrieve documents explicitly attached to this chat session
+        chunks = []
+        if document_ids:
+            try:
+                retriever = HybridRetriever(current_app._get_current_object())
+                chunks = retriever.retrieve(
+                    query=user_text,
+                    user_id=current_user.id,
+                    document_ids=document_ids
+                )
+            except Exception as e:
+                current_app.logger.warning('RAG retrieval failed: %s', e)
+                chunks = []
 
         # 4. Build sources_list from retrieved chunks
         sources_list = [
