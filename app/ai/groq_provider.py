@@ -27,7 +27,7 @@ class GroqProvider(AIProvider):
                 messages=messages,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                timeout=30.0
+                timeout=60.0
             )
             content = response.choices[0].message.content or ''
             # Strip <think>...</think> blocks that qwen/reasoning models emit

@@ -1,5 +1,12 @@
+import os
+import threading
 import logging
 import numpy as np
+
+# Ensure single-threaded backend libraries to avoid thread explosion on limited CPU environments
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
 
 logger = logging.getLogger(__name__)
 
@@ -11,14 +18,19 @@ class SentenceTransformerEmbedder:
         self.model_name = model_name or self.MODEL_NAME
         self._model = None  # Lazy-loaded on first use
         self._is_fastembed = False
+        self._lock = threading.Lock()
 
     def _get_model(self):
-        if self._model is None:
+        with self._lock:
+            if self._model is not None:
+                return self._model
+
             import gc
             # 1. Try fastembed first (lightweight ONNX runtime: ~120MB RAM vs 900MB)
             try:
                 from fastembed import TextEmbedding
-                self._model = TextEmbedding(f'sentence-transformers/{self.model_name}')
+                # threads=1 keeps ONNX Runtime memory and CPU low on Render
+                self._model = TextEmbedding(f'sentence-transformers/{self.model_name}', threads=1)
                 self._is_fastembed = True
                 return self._model
             except Exception as e:
@@ -38,7 +50,7 @@ class SentenceTransformerEmbedder:
                 logger.warning('SentenceTransformer fallback: %s', e)
 
             self._model = 'unavailable'
-        return self._model
+            return self._model
 
     def embed(self, texts: list) -> np.ndarray:
         import gc

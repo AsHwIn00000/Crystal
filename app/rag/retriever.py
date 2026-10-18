@@ -56,6 +56,30 @@ class HybridRetriever:
         if not cw_allowed and not priv_allowed and not keyword_chunk_ids:
             return []
 
+        # Fast path for overview/summary queries or small documents:
+        # Fetch the sequential chunks directly in reading order from DB (< 20ms)
+        is_overview_query = any(w in query.lower() for w in [
+            'overview', 'summar', 'explain', 'what is this', 'about the file',
+            'about this file', 'about the document', 'about this document',
+            'key points', 'notes', 'introduction'
+        ])
+        total_scope_chunks = len(cw_allowed | priv_allowed)
+        if document_ids and (is_overview_query or total_scope_chunks <= self.top_k):
+            chunks_ordered = db.session.query(DocumentChunk).filter(
+                DocumentChunk.document_id.in_(document_ids)
+            ).order_by(DocumentChunk.chunk_index.asc()).limit(self.top_k).all()
+            if chunks_ordered:
+                results = [
+                    {
+                        'chunk_db_id': c.id,
+                        'document_id': c.document_id,
+                        'score': 1.0,
+                        'keyword_match': True
+                    }
+                    for c in chunks_ordered
+                ]
+                return self._hydrate(results)
+
         # Vector search (only when documents exist in scope)
         if cw_allowed or priv_allowed:
             try:
