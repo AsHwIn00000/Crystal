@@ -25,19 +25,28 @@ const API = {
     return match ? decodeURIComponent(match[1]) : '';
   },
 
-  async request(method, url, body = null, isFormData = false) {
+  async request(method, url, body = null, isFormData = false, timeoutMs = 45000) {
     const headers = { 'X-CSRFToken': this._csrfToken() };
     if (!isFormData) headers['Content-Type'] = 'application/json';
-    const opts = { method, headers, credentials: 'same-origin' };
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const opts = { method, headers, credentials: 'same-origin', signal: controller.signal };
     if (body) opts.body = isFormData ? body : JSON.stringify(body);
 
     let res;
     try {
       res = await fetch(url, opts);
     } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        showToast('Request timed out. Please try again.', 'error');
+        throw new Error('Request timed out. Please try again.');
+      }
       // Network-level error (DNS failure, offline, etc.)
       showToast('Network error. Please check your connection.', 'error');
       throw err;
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     if (res.status === 401) {
