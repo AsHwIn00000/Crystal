@@ -233,20 +233,29 @@ def send_message(session_id):
                 pass
 
     # Validate document_ids ownership and wait briefly if ingestion is still running
+    valid_document_ids = []
+    failed_doc_names = []
     if document_ids:
         import time
         for doc_id in document_ids:
             doc = db.session.get(Document, doc_id)
             if doc is None:
-                abort(404)
+                continue
             if doc.scope == DocumentScope.PRIVATE and doc.user_id != current_user.id:
-                abort(403)
-            # Wait up to 8 seconds if doc is still processing
+                continue
+            # Wait up to 4 seconds if doc is actively processing
             start_wait = time.time()
-            while doc.status in (DocumentStatus.PENDING, DocumentStatus.PROCESSING) and (time.time() - start_wait) < 8.0:
-                time.sleep(0.5)
+            while doc.status in (DocumentStatus.PENDING, DocumentStatus.PROCESSING) and (time.time() - start_wait) < 4.0:
+                time.sleep(0.4)
                 db.session.expire(doc)
                 doc = db.session.get(Document, doc_id)
+
+            if doc.status == DocumentStatus.READY:
+                valid_document_ids.append(doc.id)
+            elif doc.status == DocumentStatus.FAILED:
+                failed_doc_names.append(doc.filename_original)
+
+    document_ids = valid_document_ids
 
     # 2. Persist user message
     user_msg = ChatMessage(
@@ -260,62 +269,67 @@ def send_message(session_id):
     db.session.add(user_msg)
     db.session.commit()  # Persist user message immediately
 
-    # 3. Retrieve relevant chunks (scope-filtered)
-    try:
-        retriever = HybridRetriever(current_app._get_current_object())
-        chunks = retriever.retrieve(
-            query=user_text,
-            user_id=current_user.id,
-            document_ids=document_ids if document_ids else None
-        )
-    except Exception as e:
-        current_app.logger.warning('RAG retrieval failed: %s', e)
-        chunks = []
-
-    # 4. Build sources_list from retrieved chunks
-    sources_list = [
-        {
-            'doc_id': c.document_id,
-            'chunk_id': c.chunk_db_id,
-            'title': c.doc_title,
-            'page': c.page_number
-        }
-        for c in chunks
-    ]
-
-    # 5. Get recent conversation history (last 10 messages)
-    recent = db.session.execute(
-        db.select(ChatMessage)
-        .filter_by(session_id=session_id)
-        .order_by(ChatMessage.created_at.desc())
-        .limit(10)
-    ).scalars().all()
-    recent.reverse()
-
-    # 6. Build prompt with injection defenses
-    prompt_builder = PromptBuilder()
-    messages = prompt_builder.build(user_text, chunks, recent)
-
-    # 7. Call AI provider
-    provider = current_app.extensions['ai_provider']
-    try:
-        ai_response = provider.chat(messages)
-        answer = ai_response.content
-    except AIRateLimitError:
-        answer = 'The AI service is busy. Please try again in a moment.'
+    # If target document failed or was interrupted, advise the user directly
+    if failed_doc_names and not document_ids and any(w in user_text.lower() for w in ['file', 'doc', 'pdf', 'this', 'overview', 'summar', 'explain', 'what', 'give']):
+        answer = f"I couldn't read **{failed_doc_names[0]}** because its processing was interrupted by a recent server restart. Please upload the file once more, and I'll analyze it for you right away!"
         sources_list = []
-    except (AITimeoutError, AIProviderError) as exc:
-        current_app.logger.error('AI provider error: %s — %s', type(exc).__name__, exc)
-        answer = 'Unable to reach the AI service. Please try again.'
-        sources_list = []
-    except AIAuthError as exc:
-        current_app.logger.critical('AIAuthError — check GROQ_API_KEY: %s', exc)
-        answer = 'An internal error occurred.'
-        sources_list = []
-    except Exception as exc:
-        current_app.logger.error('Unexpected error in send_message: %s — %s', type(exc).__name__, exc)
-        answer = 'An unexpected error occurred. Please try again.'
-        sources_list = []
+    else:
+        # 3. Retrieve relevant chunks (scope-filtered)
+        try:
+            retriever = HybridRetriever(current_app._get_current_object())
+            chunks = retriever.retrieve(
+                query=user_text,
+                user_id=current_user.id,
+                document_ids=document_ids if document_ids else None
+            )
+        except Exception as e:
+            current_app.logger.warning('RAG retrieval failed: %s', e)
+            chunks = []
+
+        # 4. Build sources_list from retrieved chunks
+        sources_list = [
+            {
+                'doc_id': c.document_id,
+                'chunk_id': c.chunk_db_id,
+                'title': c.doc_title,
+                'page': c.page_number
+            }
+            for c in chunks
+        ]
+
+        # 5. Get recent conversation history (last 10 messages)
+        recent = db.session.execute(
+            db.select(ChatMessage)
+            .filter_by(session_id=session_id)
+            .order_by(ChatMessage.created_at.desc())
+            .limit(10)
+        ).scalars().all()
+        recent.reverse()
+
+        # 6. Build prompt with injection defenses
+        prompt_builder = PromptBuilder()
+        messages = prompt_builder.build(user_text, chunks, recent)
+
+        # 7. Call AI provider
+        provider = current_app.extensions['ai_provider']
+        try:
+            ai_response = provider.chat(messages)
+            answer = ai_response.content
+        except AIRateLimitError:
+            answer = 'The AI service is busy. Please try again in a moment.'
+            sources_list = []
+        except (AITimeoutError, AIProviderError) as exc:
+            current_app.logger.error('AI provider error: %s — %s', type(exc).__name__, exc)
+            answer = 'Unable to reach the AI service. Please try again.'
+            sources_list = []
+        except AIAuthError as exc:
+            current_app.logger.critical('AIAuthError — check GROQ_API_KEY: %s', exc)
+            answer = 'An internal error occurred.'
+            sources_list = []
+        except Exception as exc:
+            current_app.logger.error('Unexpected error in send_message: %s — %s', type(exc).__name__, exc)
+            answer = 'An unexpected error occurred. Please try again.'
+            sources_list = []
 
     # 8. Persist assistant message with sources
     asst_msg = ChatMessage(

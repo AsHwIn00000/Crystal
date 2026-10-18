@@ -111,7 +111,7 @@ def create_app(config_name: str = 'development') -> Flask:
         try:
             from app.models.user import User
             from app.models.chat import ChatSession, ChatMessage, SavedPrompt
-            from app.models.document import Document, DocumentChunk, DocumentProcessingJob
+            from app.models.document import Document, DocumentChunk, DocumentProcessingJob, DocumentStatus, JobStatus
             from app.models.feedback import Feedback
             from app.models.audit import AuditEvent
             db.create_all()
@@ -122,8 +122,29 @@ def create_app(config_name: str = 'development') -> Flask:
                 with db.engine.connect() as conn:
                     conn.execute(text("ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS attachments_json TEXT;"))
                     conn.commit()
+
+                # Auto-heal documents interrupted by server restarts/redeploys
+                interrupted_docs = db.session.query(Document).filter(
+                    Document.status.in_([DocumentStatus.PENDING, DocumentStatus.PROCESSING])
+                ).all()
+                for d in interrupted_docs:
+                    if d.chunks.count() > 0:
+                        d.status = DocumentStatus.READY
+                    else:
+                        d.status = DocumentStatus.FAILED
+
+                interrupted_jobs = db.session.query(DocumentProcessingJob).filter(
+                    DocumentProcessingJob.status.in_([JobStatus.QUEUED, JobStatus.RUNNING])
+                ).all()
+                for j in interrupted_jobs:
+                    j.status = JobStatus.FAILED
+                    j.error_message = 'Interrupted by server restart. Please re-upload.'
+
+                if interrupted_docs or interrupted_jobs:
+                    db.session.commit()
             except Exception as col_err:
-                app.logger.warning('Column migration warning: %s', col_err)
+                db.session.rollback()
+                app.logger.warning('Startup migrations and cleanup warning: %s', col_err)
         except Exception as e:
             app.logger.warning('db.create_all() exception on startup: %s', e)
 

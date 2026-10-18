@@ -276,6 +276,10 @@ async function handleSend() {
 
       if (!uploadRes.ok) {
         hideTypingIndicator();
+        document.querySelectorAll('.attachment-card-meta .status-pill').forEach(pill => {
+          pill.textContent = 'Upload failed';
+          pill.classList.add('status-pill--error');
+        });
         showToast(uploadData.error || 'Upload failed.', 'error');
         return;
       }
@@ -296,7 +300,11 @@ async function handleSend() {
       }]);
     } catch (err) {
       hideTypingIndicator();
-      showToast('Error uploading study file.', 'error');
+      document.querySelectorAll('.attachment-card-meta .status-pill').forEach(pill => {
+        pill.textContent = 'Upload failed';
+        pill.classList.add('status-pill--error');
+      });
+      showToast('Error uploading study file. Please try again.', 'error');
     }
     return;
   }
